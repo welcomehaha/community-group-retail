@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.community.mapper.CartItemMapper">
+
+    <select id="list" resultType="com.community.entity.CartItem">
+        select id,
+               name,
+               image,
+               uid as user_id,
+               prod_id as product_id,
+               pack_id as product_bundle_id,
+               spec as product_spec,
+               num as number,
+               amount,
+               create_time
+        from cart
+        <where>
+            <if test="userId != null">
+                and uid = #{userId}
+            </if>
+            <if test="productBundleId != null">
+                and pack_id = #{productBundleId}
+            </if>
+            <if test="productId != null">
+                and prod_id = #{productId}
+            </if>
+            <if test="productSpec != null">
+                and spec = #{productSpec}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertBatch" parameterType="list">
+        insert into cart (name, image, uid, prod_id, pack_id, spec, num, amount, create_time)
+        values
+        <foreach collection="cartItemList" item="sc" separator=",">
+            (#{sc.name},#{sc.image},#{sc.userId},#{sc.productId},#{sc.productBundleId},#{sc.productSpec},#{sc.number},#{sc.amount},#{sc.createTime})
+        </foreach>
+    </insert>
+</mapper>

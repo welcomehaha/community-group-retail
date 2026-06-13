@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.community.ai.mapper.AiConversationMapper">
+
+    <insert id="insert" parameterType="com.community.entity.AiConversation" useGeneratedKeys="true" keyProperty="id">
+        insert into ai_conversation
+        (user_id, conversation_type, title, status, create_time, update_time)
+        values
+        (#{userId}, #{conversationType}, #{title}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="getById" resultType="com.community.entity.AiConversation">
+        select * from ai_conversation where id = #{id}
+    </select>
+
+    <select id="getByIdAndUserId" resultType="com.community.entity.AiConversation">
+        select * from ai_conversation
+        where id = #{id} and user_id = #{userId} and status = 1
+    </select>
+
+    <select id="listByUserId" resultType="com.community.entity.AiConversation">
+        select * from ai_conversation
+        where user_id = #{userId} and status = 1
+        order by update_time desc, id desc
+    </select>
+
+    <select id="listAll" resultType="com.community.entity.AiConversation">
+        select * from ai_conversation
+        order by update_time desc, id desc
+    </select>
+
+    <update id="updateTitle">
+        update ai_conversation
+        set title = #{title}, update_time = now()
+        where id = #{id}
+    </update>
+
+    <update id="touch">
+        update ai_conversation
+        set update_time = now()
+        where id = #{id}
+    </update>
+
+    <update id="deleteById">
+        update ai_conversation
+        set status = 0, update_time = now()
+        where id = #{id} and user_id = #{userId}
+    </update>
+</mapper>

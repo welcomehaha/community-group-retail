@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.community.mapper.AddressBookMapper">
+
+    <select id="list" parameterType="AddressBook" resultType="AddressBook">
+        select id,
+               uid as user_id,
+               consignee,
+               sex,
+               phone,
+               prov_code as province_code,
+               prov_name as province_name,
+               city_code,
+               city_name,
+               dist_code as district_code,
+               dist_name as district_name,
+               detail,
+               label,
+               is_def as is_default
+        from addr_book
+        <where>
+            <if test="userId != null">
+                and uid = #{userId}
+            </if>
+            <if test="phone != null">
+                and phone = #{phone}
+            </if>
+            <if test="isDefault != null">
+                and is_def = #{isDefault}
+            </if>
+        </where>
+    </select>
+
+    <update id="update" parameterType="addressBook">
+        update addr_book
+        <set>
+            <if test="consignee != null">
+                consignee = #{consignee},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="provinceCode != null">
+                prov_code = #{provinceCode},
+            </if>
+            <if test="provinceName != null">
+                prov_name = #{provinceName},
+            </if>
+            <if test="cityCode != null">
+                city_code = #{cityCode},
+            </if>
+            <if test="cityName != null">
+                city_name = #{cityName},
+            </if>
+            <if test="districtCode != null">
+                dist_code = #{districtCode},
+            </if>
+            <if test="districtName != null">
+                dist_name = #{districtName},
+            </if>
+            <if test="detail != null">
+                detail = #{detail},
+            </if>
+            <if test="label != null">
+                label = #{label},
+            </if>
+            <if test="isDefault != null">
+                is_def = #{isDefault},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

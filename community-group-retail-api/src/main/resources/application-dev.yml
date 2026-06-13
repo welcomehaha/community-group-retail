@@ -1,0 +1,45 @@
+community:
+  alioss:
+    endpoint: ${ALI_OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
+    access-key-id: ${ALI_OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${ALI_OSS_ACCESS_KEY_SECRET:}
+    bucket-name: ${ALI_OSS_BUCKET_NAME:}
+  wechat:
+    appid: ${WECHAT_APP_ID:}
+    secret: ${WECHAT_APP_SECRET:}
+    mchid: ${WECHAT_MCH_ID:}
+    mchSerialNo: ${WECHAT_MCH_SERIAL_NO:}
+    privateKeyFilePath: ${WECHAT_PRIVATE_KEY_FILE_PATH:}
+    apiV3Key: ${WECHAT_API_V3_KEY:}
+    weChatPayCertFilePath: ${WECHAT_PAY_CERT_FILE_PATH:}
+    notifyUrl: ${WECHAT_NOTIFY_URL:}
+    refundNotifyUrl: ${WECHAT_REFUND_NOTIFY_URL:}
+  ai:
+    # 是否启用 Spring AI 真实模型调用，默认关闭；关闭时走本地规则路由与知识库回答
+    enabled: ${AI_ENABLED:true}
+    # 模型名称，例如：gpt-4o-mini
+    model: ${AI_CHAT_MODEL:deepseek-ai/DeepSeek-V4-Flash}
+    # Embedding 模型名称，例如：text-embedding-3-small
+    embedding-model: ${AI_EMBEDDING_MODEL:Pro/BAAI/bge-m3}
+    # 客服系统提示词
+    system-prompt: ${AI_SYSTEM_PROMPT:你是社区团购即时零售平台客服助手。涉及订单、库存、金额、配送状态必须基于系统提供的查询结果作答，不得编造；无法确认时请提醒用户补充信息或转人工客服。}
+    # 当前配置字段仅用于说明，HTTP超时仍使用公共工具类默认值
+    timeout-millis: ${AI_TIMEOUT_MILLIS:5000}
+    # RAG 默认检索条数
+    top-k: ${AI_TOP_K:4}
+    # RAG 默认相似度阈值
+    similarity-threshold: ${AI_SIMILARITY_THRESHOLD:0.6}
+
+spring:
+  ai:
+    openai:
+      # 通过环境变量传入 AI 平台密钥。
+      api-key: ${OPENAI_API_KEY:}
+      # 开发环境默认走硅基流动兼容地址，也可通过环境变量覆盖。
+      base-url: ${OPENAI_BASE_URL:https://api.siliconflow.cn/v1}
+      embedding:
+        options:
+          model: ${community.ai.embedding-model:}
+      chat:
+        options:
+          model: ${community.ai.model:}

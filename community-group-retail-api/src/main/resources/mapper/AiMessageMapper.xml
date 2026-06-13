@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.community.ai.mapper.AiMessageMapper">
+
+    <insert id="insert" parameterType="com.community.entity.AiMessage" useGeneratedKeys="true" keyProperty="id">
+        insert into ai_message
+        (conversation_id, user_id, role, content, content_type, tool_name, action_type, tool_result, audit_status, audit_remark, approval_status, approval_remark, approval_user_id, approval_time, create_time)
+        values
+        (#{conversationId}, #{userId}, #{role}, #{content}, #{contentType}, #{toolName}, #{actionType}, #{toolResult}, #{auditStatus}, #{auditRemark}, #{approvalStatus}, #{approvalRemark}, #{approvalUserId}, #{approvalTime}, #{createTime})
+    </insert>
+
+    <select id="listByConversationId" resultType="com.community.entity.AiMessage">
+        select * from ai_message
+        where conversation_id = #{conversationId}
+        order by id asc
+    </select>
+
+    <select id="getLastMessage" resultType="com.community.entity.AiMessage">
+        select * from ai_message
+        where conversation_id = #{conversationId}
+        order by id desc
+        limit 1
+    </select>
+
+    <select id="getById" resultType="com.community.entity.AiMessage">
+        select * from ai_message
+        where id = #{id}
+        limit 1
+    </select>
+
+    <delete id="deleteByConversationId">
+        delete from ai_message where conversation_id = #{conversationId}
+    </delete>
+
+    <select id="listHotQuestions" resultType="com.community.vo.AiHotQuestionVO">
+        select content as question, count(1) as hit_count
+        from ai_message
+        where role = 'user'
+          and content is not null
+          and trim(content) != ''
+        group by content
+        order by hit_count desc, max(id) desc
+        limit #{limit}
+    </select>
+
+    <select id="listFallbackQuestions" resultType="com.community.vo.AiFallbackAnalysisVO">
+        select
+            u.content as question,
+            count(1) as hit_count
+        from ai_message u
+                 inner join ai_message a on a.id = (
+            select min(next_msg.id)
+            from ai_message next_msg
+            where next_msg.conversation_id = u.conversation_id
+              and next_msg.id &gt; u.id
+              and next_msg.role = 'assistant'
+        )
+        where u.role = 'user'
+          and a.content like '%我暂时没有足够信息直接回答这个问题%'
+        group by u.content
+        order by hit_count desc, max(u.id) desc
+        limit #{limit}
+    </select>
+
+    <select id="listRiskAudits" resultType="com.community.vo.AiRiskAuditVO">
+        select
+            a.conversation_id,
+            u.id as user_message_id,
+            a.id as assistant_message_id,
+            u.content as user_question,
+            a.content as assistant_reply,
+            a.tool_name as route,
+            a.action_type,
+            case
+                when a.action_type = 'cancel_order' then '涉及取消订单动作'
+                when a.action_type = 'remind_order' then '涉及催单动作'
+                when a.action_type = 'after_sale' then '涉及售后申请动作'
+                when a.tool_name = 'action' then '命中高风险业务动作路由'
+                when a.content like '%确认%' then '涉及用户确认的高风险业务动作'
+                when a.content like '%取消订单%' then '涉及取消订单动作'
+                when a.content like '%售后申请%' then '涉及售后申请动作'
+                when a.content like '%催单%' then '涉及催单动作'
+                else '命中高风险关键词'
+                end as risk_reason,
+            a.audit_status,
+            a.audit_remark,
+            a.approval_status,
+            a.approval_remark,
+            a.approval_user_id,
+            a.approval_time,
+            a.create_time
+        from ai_message a
+                 left join ai_message u on u.id = (
+            select max(prev_msg.id)
+            from ai_message prev_msg
+            where prev_msg.conversation_id = a.conversation_id
+              and prev_msg.id &lt; a.id
+              and prev_msg.role = 'user'
+        )
+        where a.role = 'assistant'
+          and (
+            a.action_type is not null
+                or a.tool_name = 'action'
+                or a.content like '%确认%'
+                or a.content like '%取消订单%'
+                or a.content like '%售后申请%'
+                or a.content like '%催单%'
+            )
+        order by a.id desc
+        limit #{limit}
+    </select>
+
+    <select id="pageRiskAudits" resultType="com.community.vo.AiRiskAuditVO">
+        select
+            a.conversation_id,
+            u.id as user_message_id,
+            a.id as assistant_message_id,
+            u.content as user_question,
+            a.content as assistant_reply,
+            a.tool_name as route,
+            a.action_type,
+            case
+                when a.action_type = 'cancel_order' then '涉及取消订单动作'
+                when a.action_type = 'remind_order' then '涉及催单动作'
+                when a.action_type = 'after_sale' then '涉及售后申请动作'
+                when a.tool_name = 'action' then '命中高风险业务动作路由'
+                when a.content like '%确认%' then '涉及用户确认的高风险业务动作'
+                when a.content like '%取消订单%' then '涉及取消订单动作'
+                when a.content like '%售后申请%' then '涉及售后申请动作'
+                when a.content like '%催单%' then '涉及催单动作'
+                else '命中高风险关键词'
+                end as risk_reason,
+            a.audit_status,
+            a.audit_remark,
+            a.approval_status,
+            a.approval_remark,
+            a.approval_user_id,
+            a.approval_time,
+            a.create_time
+        from ai_message a
+                 left join ai_message u on u.id = (
+            select max(prev_msg.id)
+            from ai_message prev_msg
+            where prev_msg.conversation_id = a.conversation_id
+              and prev_msg.id &lt; a.id
+              and prev_msg.role = 'user'
+        )
+        where a.role = 'assistant'
+          and (
+            a.action_type is not null
+                or a.tool_name = 'action'
+                or a.content like '%确认%'
+                or a.content like '%取消订单%'
+                or a.content like '%售后申请%'
+                or a.content like '%催单%'
+            )
+        <if test="conversationId != null">
+            and a.conversation_id = #{conversationId}
+        </if>
+        <if test="userId != null">
+            and a.user_id = #{userId}
+        </if>
+        <if test="actionType != null and actionType != ''">
+            and a.action_type = #{actionType}
+        </if>
+        <if test="auditStatus != null">
+            and a.audit_status = #{auditStatus}
+        </if>
+        <if test="approvalStatus != null">
+            and a.approval_status = #{approvalStatus}
+        </if>
+        <if test="approvalUserId != null">
+            and a.approval_user_id = #{approvalUserId}
+        </if>
+        <if test="questionKeyword != null and questionKeyword != ''">
+            and (
+                u.content like concat('%', #{questionKeyword}, '%')
+                or a.content like concat('%', #{questionKeyword}, '%')
+            )
+        </if>
+        <if test="beginTime != null">
+            and a.create_time <![CDATA[ >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and a.create_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        <if test="approvalBeginTime != null">
+            and a.approval_time <![CDATA[ >= ]]> #{approvalBeginTime}
+        </if>
+        <if test="approvalEndTime != null">
+            and a.approval_time <![CDATA[ <= ]]> #{approvalEndTime}
+        </if>
+        order by a.id desc
+    </select>
+
+    <select id="getRiskAuditSummary" resultType="com.community.vo.AiRiskAuditSummaryVO">
+        select
+            count(1) as total_count,
+            sum(case when ifnull(a.audit_status, 0) = 0 then 1 else 0 end) as pending_count,
+            sum(case when a.audit_status = 1 then 1 else 0 end) as confirmed_count,
+            sum(case when a.audit_status = 2 then 1 else 0 end) as ignored_count,
+            sum(case when ifnull(a.approval_status, 0) = 0 then 1 else 0 end) as approval_pending_count,
+            sum(case when a.approval_status = 1 then 1 else 0 end) as approval_approved_count,
+            sum(case when a.approval_status = 2 then 1 else 0 end) as approval_rejected_count
+        from ai_message a
+                 left join ai_message u on u.id = (
+            select max(prev_msg.id)
+            from ai_message prev_msg
+            where prev_msg.conversation_id = a.conversation_id
+              and prev_msg.id &lt; a.id
+              and prev_msg.role = 'user'
+        )
+        where a.role = 'assistant'
+          and (
+            a.action_type is not null
+                or a.tool_name = 'action'
+                or a.content like '%确认%'
+                or a.content like '%取消订单%'
+                or a.content like '%售后申请%'
+                or a.content like '%催单%'
+            )
+        <if test="conversationId != null">
+            and a.conversation_id = #{conversationId}
+        </if>
+        <if test="userId != null">
+            and a.user_id = #{userId}
+        </if>
+        <if test="actionType != null and actionType != ''">
+            and a.action_type = #{actionType}
+        </if>
+        <if test="auditStatus != null">
+            and a.audit_status = #{auditStatus}
+        </if>
+        <if test="approvalStatus != null">
+            and a.approval_status = #{approvalStatus}
+        </if>
+        <if test="approvalUserId != null">
+            and a.approval_user_id = #{approvalUserId}
+        </if>
+        <if test="questionKeyword != null and questionKeyword != ''">
+            and (
+                u.content like concat('%', #{questionKeyword}, '%')
+                or a.content like concat('%', #{questionKeyword}, '%')
+            )
+        </if>
+        <if test="beginTime != null">
+            and a.create_time <![CDATA[ >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and a.create_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        <if test="approvalBeginTime != null">
+            and a.approval_time <![CDATA[ >= ]]> #{approvalBeginTime}
+        </if>
+        <if test="approvalEndTime != null">
+            and a.approval_time <![CDATA[ <= ]]> #{approvalEndTime}
+        </if>
+    </select>
+
+    <select id="getRiskApprovalOverview" resultType="com.community.vo.AiRiskApprovalOverviewVO">
+        select
+            sum(case when a.approval_status in (1, 2) then 1 else 0 end) as approval_total_count,
+            sum(case when a.approval_status = 1 then 1 else 0 end) as approval_approved_count,
+            sum(case when a.approval_status = 2 then 1 else 0 end) as approval_rejected_count
+        from ai_message a
+                 left join ai_message u on u.id = (
+            select max(prev_msg.id)
+            from ai_message prev_msg
+            where prev_msg.conversation_id = a.conversation_id
+              and prev_msg.id &lt; a.id
+              and prev_msg.role = 'user'
+        )
+        where a.role = 'assistant'
+          and (
+            a.action_type is not null
+                or a.tool_name = 'action'
+                or a.content like '%确认%'
+                or a.content like '%取消订单%'
+                or a.content like '%售后申请%'
+                or a.content like '%催单%'
+            )
+        <if test="conversationId != null">
+            and a.conversation_id = #{conversationId}
+        </if>
+        <if test="userId != null">
+            and a.user_id = #{userId}
+        </if>
+        <if test="approvalUserId != null">
+            and a.approval_user_id = #{approvalUserId}
+        </if>
+        <if test="actionType != null and actionType != ''">
+            and a.action_type = #{actionType}
+        </if>
+        <if test="auditStatus != null">
+            and a.audit_status = #{auditStatus}
+        </if>
+        <if test="approvalStatus != null">
+            and a.approval_status = #{approvalStatus}
+        </if>
+        <if test="questionKeyword != null and questionKeyword != ''">
+            and (
+                u.content like concat('%', #{questionKeyword}, '%')
+                or a.content like concat('%', #{questionKeyword}, '%')
+            )
+        </if>
+        <if test="beginTime != null">
+            and a.create_time <![CDATA[ >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and a.create_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        <if test="approvalBeginTime != null">
+            and a.approval_time <![CDATA[ >= ]]> #{approvalBeginTime}
+        </if>
+        <if test="approvalEndTime != null">
+            and a.approval_time <![CDATA[ <= ]]> #{approvalEndTime}
+        </if>
+    </select>
+
+    <select id="listRiskApprovalTrend" resultType="com.community.vo.AiRiskAuditTrendItemVO">
+        select
+            date_format(a.create_time, '%Y-%m-%d') as stat_date,
+            count(1) as risk_hit_count,
+            sum(case when a.approval_status = 1 then 1 else 0 end) as approval_approved_count,
+            sum(case when a.approval_status = 2 then 1 else 0 end) as approval_rejected_count,
+            case
+                when sum(case when a.approval_status in (1, 2) then 1 else 0 end) = 0 then 0
+                else round(
+                    sum(case when a.approval_status = 1 then 1 else 0 end) * 100.0 /
+                    sum(case when a.approval_status in (1, 2) then 1 else 0 end), 2
+                )
+                end as approval_pass_rate
+        from ai_message a
+                 left join ai_message u on u.id = (
+            select max(prev_msg.id)
+            from ai_message prev_msg
+            where prev_msg.conversation_id = a.conversation_id
+              and prev_msg.id &lt; a.id
+              and prev_msg.role = 'user'
+        )
+        where a.role = 'assistant'
+          and (
+            a.action_type is not null
+                or a.tool_name = 'action'
+                or a.content like '%确认%'
+                or a.content like '%取消订单%'
+                or a.content like '%售后申请%'
+                or a.content like '%催单%'
+            )
+        <if test="conversationId != null">
+            and a.conversation_id = #{conversationId}
+        </if>
+        <if test="userId != null">
+            and a.user_id = #{userId}
+        </if>
+        <if test="approvalUserId != null">
+            and a.approval_user_id = #{approvalUserId}
+        </if>
+        <if test="actionType != null and actionType != ''">
+            and a.action_type = #{actionType}
+        </if>
+        <if test="auditStatus != null">
+            and a.audit_status = #{auditStatus}
+        </if>
+        <if test="approvalStatus != null">
+            and a.approval_status = #{approvalStatus}
+        </if>
+        <if test="questionKeyword != null and questionKeyword != ''">
+            and (
+                u.content like concat('%', #{questionKeyword}, '%')
+                or a.content like concat('%', #{questionKeyword}, '%')
+            )
+        </if>
+        <if test="beginTime != null">
+            and a.create_time <![CDATA[ >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and a.create_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        <if test="approvalBeginTime != null">
+            and a.approval_time <![CDATA[ >= ]]> #{approvalBeginTime}
+        </if>
+        <if test="approvalEndTime != null">
+            and a.approval_time <![CDATA[ <= ]]> #{approvalEndTime}
+        </if>
+        group by date_format(a.create_time, '%Y-%m-%d')
+        order by stat_date asc
+    </select>
+
+    <select id="listRiskActionTrend" resultType="com.community.vo.AiRiskActionTrendItemVO">
+        select
+            date_format(a.create_time, '%Y-%m-%d') as stat_date,
+            sum(case when a.action_type = 'cancel_order' then 1 else 0 end) as cancel_order_count,
+            sum(case when a.action_type = 'remind_order' then 1 else 0 end) as remind_order_count,
+            sum(case when a.action_type = 'after_sale' then 1 else 0 end) as after_sale_count
+        from ai_message a
+                 left join ai_message u on u.id = (
+            select max(prev_msg.id)
+            from ai_message prev_msg
+            where prev_msg.conversation_id = a.conversation_id
+              and prev_msg.id &lt; a.id
+              and prev_msg.role = 'user'
+        )
+        where a.role = 'assistant'
+          and a.action_type is not null
+        <if test="conversationId != null">
+            and a.conversation_id = #{conversationId}
+        </if>
+        <if test="userId != null">
+            and a.user_id = #{userId}
+        </if>
+        <if test="approvalUserId != null">
+            and a.approval_user_id = #{approvalUserId}
+        </if>
+        <if test="actionType != null and actionType != ''">
+            and a.action_type = #{actionType}
+        </if>
+        <if test="approvalStatus != null">
+            and a.approval_status = #{approvalStatus}
+        </if>
+        <if test="questionKeyword != null and questionKeyword != ''">
+            and (
+                u.content like concat('%', #{questionKeyword}, '%')
+                or a.content like concat('%', #{questionKeyword}, '%')
+            )
+        </if>
+        <if test="beginTime != null">
+            and a.create_time <![CDATA[ >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and a.create_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        group by date_format(a.create_time, '%Y-%m-%d')
+        order by stat_date asc
+    </select>
+
+    <select id="listRiskActionApprovalStats" resultType="com.community.vo.AiRiskActionApprovalVO">
+        select
+            a.action_type,
+            sum(case when a.approval_status in (1, 2) then 1 else 0 end) as approval_total_count,
+            sum(case when a.approval_status = 1 then 1 else 0 end) as approval_approved_count,
+            case
+                when sum(case when a.approval_status in (1, 2) then 1 else 0 end) = 0 then 0
+                else round(
+                    sum(case when a.approval_status = 1 then 1 else 0 end) * 100.0 /
+                    sum(case when a.approval_status in (1, 2) then 1 else 0 end), 2
+                )
+                end as approval_pass_rate
+        from ai_message a
+                 left join ai_message u on u.id = (
+            select max(prev_msg.id)
+            from ai_message prev_msg
+            where prev_msg.conversation_id = a.conversation_id
+              and prev_msg.id &lt; a.id
+              and prev_msg.role = 'user'
+        )
+        where a.role = 'assistant'
+          and a.action_type is not null
+        <if test="conversationId != null">
+            and a.conversation_id = #{conversationId}
+        </if>
+        <if test="userId != null">
+            and a.user_id = #{userId}
+        </if>
+        <if test="approvalUserId != null">
+            and a.approval_user_id = #{approvalUserId}
+        </if>
+        <if test="actionType != null and actionType != ''">
+            and a.action_type = #{actionType}
+        </if>
+        <if test="approvalStatus != null">
+            and a.approval_status = #{approvalStatus}
+        </if>
+        <if test="questionKeyword != null and questionKeyword != ''">
+            and (
+                u.content like concat('%', #{questionKeyword}, '%')
+                or a.content like concat('%', #{questionKeyword}, '%')
+            )
+        </if>
+        <if test="beginTime != null">
+            and a.create_time <![CDATA[ >= ]]> #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and a.create_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        <if test="approvalBeginTime != null">
+            and a.approval_time <![CDATA[ >= ]]> #{approvalBeginTime}
+        </if>
+        <if test="approvalEndTime != null">
+            and a.approval_time <![CDATA[ <= ]]> #{approvalEndTime}
+        </if>
+        group by a.action_type
+        order by approval_pass_rate desc, approval_total_count desc
+    </select>
+
+    <select id="listFallbackTrend" resultType="com.community.vo.AiFallbackTrendItemVO">
+        select
+            date_format(u.create_time, '%Y-%m-%d') as stat_date,
+            count(1) as fallback_count
+        from ai_message u
+                 inner join ai_message a on a.id = (
+            select min(next_msg.id)
+            from ai_message next_msg
+            where next_msg.conversation_id = u.conversation_id
+              and next_msg.id &gt; u.id
+              and next_msg.role = 'assistant'
+        )
+        where u.role = 'user'
+          and a.content like '%我暂时没有足够信息直接回答这个问题%'
+        group by date_format(u.create_time, '%Y-%m-%d')
+        order by stat_date desc
+        limit #{limit}
+    </select>
+
+    <update id="updateRiskAudit">
+        update ai_message
+        set audit_status = #{auditStatus},
+            audit_remark = #{auditRemark}
+        where id = #{assistantMessageId}
+          and role = 'assistant'
+          and (
+            action_type is not null
+                or tool_name = 'action'
+                or content like '%确认%'
+                or content like '%取消订单%'
+                or content like '%售后申请%'
+                or content like '%催单%'
+            )
+    </update>
+
+    <update id="updateRiskApproval">
+        update ai_message
+        set approval_status = #{approvalStatus},
+            approval_remark = #{approvalRemark},
+            approval_user_id = #{approvalUserId},
+            approval_time = now()
+        where id = #{assistantMessageId}
+          and role = 'assistant'
+          and ifnull(audit_status, 0) != 0
+          and ifnull(approval_status, 0) = 0
+          and (
+            action_type is not null
+                or tool_name = 'action'
+                or content like '%确认%'
+                or content like '%取消订单%'
+                or content like '%售后申请%'
+                or content like '%催单%'
+            )
+    </update>
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.community.mapper.PermissionMapper">
+
+    <select id="listPermissionCodesByStaffId" resultType="java.lang.String">
+        select distinct p.permission_code
+        from sys_permission p
+                 inner join sys_role_permission rp on rp.permission_id = p.id
+                 inner join sys_staff_role er on er.role_id = rp.role_id
+        where er.staff_id = #{staffId}
+          and er.status = 1
+          and p.status = 1
+    </select>
+
+    <select id="countRolesByStaffId" resultType="int">
+        select count(1)
+        from sys_staff_role
+        where staff_id = #{staffId}
+          and status = 1
+    </select>
+</mapper>

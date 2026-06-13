@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.community.ai.mapper.AiKnowledgeDocumentMapper">
+
+    <select id="listEnabled" resultType="com.community.entity.AiKnowledgeDocument">
+        select * from ai_knowledge_document
+        where status = 1
+        order by update_time desc, id desc
+    </select>
+
+    <select id="listAll" resultType="com.community.entity.AiKnowledgeDocument">
+        select * from ai_knowledge_document
+        order by update_time desc, id desc
+    </select>
+
+    <select id="getById" resultType="com.community.entity.AiKnowledgeDocument">
+        select * from ai_knowledge_document where id = #{id}
+    </select>
+
+    <select id="listEnabledByDocType" resultType="com.community.entity.AiKnowledgeDocument">
+        select * from ai_knowledge_document
+        where status = 1
+          and doc_type = #{docType}
+        order by update_time desc, id desc
+    </select>
+
+    <insert id="insert" parameterType="com.community.entity.AiKnowledgeDocument" useGeneratedKeys="true" keyProperty="id">
+        insert into ai_knowledge_document
+        (title, doc_type, source_type, source_id, content, status, version, create_time, update_time)
+        values
+        (#{title}, #{docType}, #{sourceType}, #{sourceId}, #{content}, #{status}, #{version}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.community.entity.AiKnowledgeDocument">
+        update ai_knowledge_document
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="docType != null">doc_type = #{docType},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="sourceId != null">source_id = #{sourceId},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        update ai_knowledge_document
+        set status = #{status}, update_time = now()
+        where id = #{id}
+    </update>
+</mapper>
