@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for utils/formValidate.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="..\prettify.css" />
+    <link rel="stylesheet" href="..\base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(..\sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="..\index.html">All files</a> / <a href="index.html">utils</a> formValidate.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/62</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/10</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/8</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/59</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export const <span class="cstat-no" title="statement not covered" >formatDate = <span class="fstat-no" title="function not covered" >() </span>=&gt; {</span>
+  const now = <span class="cstat-no" title="statement not covered" >new Date();</span>
+  let hour: string | number = <span class="cstat-no" title="statement not covered" >now.getHours();</span>
+  let minute: string | number = <span class="cstat-no" title="statement not covered" >now.getMinutes();</span>
+  let second: string | number = <span class="cstat-no" title="statement not covered" >now.getSeconds();</span>
+<span class="cstat-no" title="statement not covered" >  if (hour &lt; 10) <span class="cstat-no" title="statement not covered" >hour = `0${hour}`;</span></span>
+<span class="cstat-no" title="statement not covered" >  if (minute &lt; 10) <span class="cstat-no" title="statement not covered" >minute = `0${minute}`;</span></span>
+<span class="cstat-no" title="statement not covered" >  if (second &lt; 10) <span class="cstat-no" title="statement not covered" >second = `0${second}`;</span></span>
+<span class="cstat-no" title="statement not covered" >  return `${hour}:${minute}:${second}`;</span>
+};
+&nbsp;
+function <span class="fstat-no" title="function not covered" >dateFormat(</span>fmt: any, time: any) {
+  let date = <span class="cstat-no" title="statement not covered" >new Date(time);</span>
+  let ret;
+  const opt = <span class="cstat-no" title="statement not covered" >{</span>
+    // 年
+    'Y+': date.getFullYear().toString(),
+    // 月
+    'm+': (date.getMonth() + 1).toString(),
+    // 日
+    'd+': date.getDate().toString()
+    // 有其他格式化字符需求可以继续添加，必须转化成字符串
+  } as any;
+<span class="cstat-no" title="statement not covered" >  for (const k in opt) {</span>
+<span class="cstat-no" title="statement not covered" >    ret = new RegExp('(' + k + ')').exec(fmt);</span>
+<span class="cstat-no" title="statement not covered" >    if (ret) {</span>
+<span class="cstat-no" title="statement not covered" >      fmt = fmt.replace(</span>
+        ret[1],
+        ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, '0')
+      );
+    }
+  }
+<span class="cstat-no" title="statement not covered" >  return fmt;</span>
+}
+&nbsp;
+// js获取昨日的日期
+export const <span class="cstat-no" title="statement not covered" >get1stAndToday = <span class="fstat-no" title="function not covered" >() </span>=&gt; {</span>
+  let toData = <span class="cstat-no" title="statement not covered" >new Date(new Date().toLocaleDateString()).getTime();</span>
+  let yesterdayStart = <span class="cstat-no" title="statement not covered" >toData - 3600 * 24 * 1000;</span>
+  let yesterdayEnd = <span class="cstat-no" title="statement not covered" >yesterdayStart + 24 * 60 * 60 * 1000 - 1;</span>
+  let startDay1 = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', yesterdayStart);</span>
+  let endDay1 = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', yesterdayEnd);</span>
+<span class="cstat-no" title="statement not covered" >  return [startDay1, endDay1];</span>
+};
+// 获取昨日、今日日期
+export const <span class="cstat-no" title="statement not covered" >getday = <span class="fstat-no" title="function not covered" >() </span>=&gt; {</span>
+  let toData = <span class="cstat-no" title="statement not covered" >new Date(new Date().toLocaleDateString()).getTime();</span>
+  let yesterdays= <span class="cstat-no" title="statement not covered" >toData - 3600 * 24 * 1000;</span>
+  let yesterday = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY.mm.dd', yesterdays);</span>
+  let today = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY.mm.dd', toData);</span>
+<span class="cstat-no" title="statement not covered" >  return [yesterday,today];</span>
+};
+&nbsp;
+// 获取近7日
+export const <span class="cstat-no" title="statement not covered" >past7Day = <span class="fstat-no" title="function not covered" >() </span>=&gt; {</span>
+  let toData = <span class="cstat-no" title="statement not covered" >new Date(new Date().toLocaleDateString()).getTime();</span>
+  let past7daysStart = <span class="cstat-no" title="statement not covered" >toData - 7 * 3600 * 24 * 1000;</span>
+  let past7daysEnd = <span class="cstat-no" title="statement not covered" >toData - 1;</span>
+  let days7Start = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', past7daysStart);</span>
+  let days7End = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', past7daysEnd);</span>
+<span class="cstat-no" title="statement not covered" >  return [days7Start, days7End];</span>
+};
+&nbsp;
+// 获取近30日
+export const <span class="cstat-no" title="statement not covered" >past30Day = <span class="fstat-no" title="function not covered" >() </span>=&gt; {</span>
+  let toData = <span class="cstat-no" title="statement not covered" >new Date(new Date().toLocaleDateString()).getTime();</span>
+  let past30daysStart = <span class="cstat-no" title="statement not covered" >toData - 30 * 3600 * 24 * 1000;</span>
+  let past30daysEnd = <span class="cstat-no" title="statement not covered" >toData - 1;</span>
+  let days30Start = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', past30daysStart);</span>
+  let days30End = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', past30daysEnd);</span>
+<span class="cstat-no" title="statement not covered" >  return [days30Start, days30End];</span>
+};
+// 获取本周
+export const <span class="cstat-no" title="statement not covered" >pastWeek = <span class="fstat-no" title="function not covered" >() </span>=&gt; {</span>
+  let toData = <span class="cstat-no" title="statement not covered" >new Date(new Date().toLocaleDateString()).getTime();</span>
+  var nowDayOfWeek = <span class="cstat-no" title="statement not covered" >new Date().getDay();</span>
+  const weekStartData = <span class="cstat-no" title="statement not covered" >toData - (nowDayOfWeek - 1) * 24 * 60 * 60 * 1000;</span>
+  const weekEndData = <span class="cstat-no" title="statement not covered" >toData + (7 - nowDayOfWeek) * 24 * 60 * 60 * 1000;</span>
+  let weekStart = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', weekStartData);</span>
+  let weekEnd = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', weekEndData);</span>
+<span class="cstat-no" title="statement not covered" >  return [weekStart, weekEnd];</span>
+};
+// 获取本月
+export const <span class="cstat-no" title="statement not covered" >pastMonth = <span class="fstat-no" title="function not covered" >() </span>=&gt; {</span>
+  let year = <span class="cstat-no" title="statement not covered" >new Date().getFullYear()</span>
+  let month =<span class="cstat-no" title="statement not covered" >new Date().getMonth()</span>
+  const monthStartData = <span class="cstat-no" title="statement not covered" >new Date(year, month, 1).getTime()</span>
+  const monthEndData = <span class="cstat-no" title="statement not covered" >new Date(year, month + 1, 0).getTime() + 24 * 60 * 60 * 1000 - 1</span>
+  let monthStart = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', monthStartData);</span>
+  let monthEnd = <span class="cstat-no" title="statement not covered" >dateFormat('YYYY-mm-dd', monthEndData);</span>
+<span class="cstat-no" title="statement not covered" >  return [monthStart, monthEnd];</span>
+};
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Sat Jun 13 2026 12:11:03 GMT+0800 (中国标准时间)
+</div>
+</div>
+<script src="..\prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="..\sorter.js"></script>
+</body>
+</html>

@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/sky-common/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sky-pojo/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sky-server/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-bom/4.1.34.Final/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-bom/4.1.34.Final/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-bom/4.1.50.Final/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-bom/4.1.50.Final/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-bom/4.1.65.Final/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-bom/4.1.65.Final/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-bom/4.1.79.Final/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-bom/4.1.79.Final/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-codec/4.1.79.Final/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/.m2repo/io/netty/netty-codec/4.1.79.Final/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/community-group-retail-backend/community-group-retail-server/community-group-retail-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/community-group-retail-backend/community-group-retail-server/community-group-retail-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/community-group-retail-backend/community-group-retail-server/community-group-retail-pojo/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/community-group-retail-backend/community-group-retail-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/community-group-retail-backend/community-group-retail-server/src/main/resources" charset="UTF-8" />
   </component>
 </project>

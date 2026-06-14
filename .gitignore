@@ -1,0 +1,12 @@
+# 后端本地敏感配置文件
+community-group-retail-backend/community-group-retail-server/local-secrets.yml
+
+# 前端本地私有环境变量
+community-group-retail-admin/.env.local
+community-group-retail-admin/.env.*.local
+/community-group-retail-admin/.env.development
+/community-group-retail-admin/.env.production
+/community-group-retail-admin/.env.production.uat
+/community-group-retail-admin/.env.staging
+
+report*
