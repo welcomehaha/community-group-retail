@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -79,6 +80,19 @@ public class GlobalExceptionHandler {
             message = "请求参数不合法";
         }
         log.error("方法参数校验异常：{}", message);
+        return Result.error(message);
+    }
+
+    /**
+     * 处理请求参数缺失异常。
+     *
+     * @param ex 参数缺失异常
+     * @return 统一错误结果
+     */
+    @ExceptionHandler
+    public Result exceptionHandler(MissingServletRequestParameterException ex){
+        String message = ex.getParameterName() + "参数不能为空";
+        log.error("请求参数缺失异常：{}", message);
         return Result.error(message);
     }
 

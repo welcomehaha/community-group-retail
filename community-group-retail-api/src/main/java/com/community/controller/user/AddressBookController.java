@@ -103,7 +103,11 @@ public class AddressBookController {
      */
     @DeleteMapping
     @Operation(summary = "根据id删除地址")
-    public Result deleteById(@NotNull(message = "地址ID不能为空") Long id) {
+    public Result deleteById(@RequestParam(value = "id", required = false) @NotNull(message = "地址ID不能为空") Long id) {
+        // 对删除类接口增加显式空值兜底，确保在不同运行环境下都不会放过空ID请求。
+        if (id == null) {
+            throw new IllegalArgumentException("地址ID不能为空");
+        }
         addressBookService.deleteById(id);
         return Result.success();
     }
