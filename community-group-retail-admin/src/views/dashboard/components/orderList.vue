@@ -207,10 +207,7 @@
               class="order-status"
               :class="{ status3: [3, 4].includes(dialogOrderStatus) }"
             >
-              {{
-                orderList.filter((item) => item.value === dialogOrderStatus)[0]
-                  .label
-              }}
+              {{ currentOrderStatusLabel }}
             </div>
           </div>
           <p><label>下单时间：</label>{{ diaForm.orderTime }}</p>
@@ -426,8 +423,58 @@ import {
   orderCancel,
   orderReject,
   orderAccept,
-  getOrderListBy,
+  OrderDetail as ApiOrderDetail,
+  OrderId,
+  OrderListStatistics,
+  OrderPageResult,
+  OrderSummary,
 } from '@/api/order'
+
+interface OrderReasonOption {
+  value: number
+  label: string
+}
+
+interface OrderStatusOption {
+  label: string
+  value: number
+  num?: number
+}
+
+interface OrderTableRow extends OrderSummary {}
+
+interface OrderDetailDialog extends ApiOrderDetail {
+  orderTime: string
+  consignee: string
+  phone: string
+}
+
+const createEmptyOrderRow = (): OrderTableRow => ({
+  id: '',
+  number: '',
+  status: 0,
+  orderDishes: '',
+  address: '',
+  estimatedDeliveryTime: '',
+  amount: 0,
+  remark: '',
+  tablewareNumber: 0,
+})
+
+const createEmptyOrderDetail = (): OrderDetailDialog => ({
+  ...createEmptyOrderRow(),
+  orderTime: '',
+  consignee: '',
+  phone: '',
+  deliveryTime: '',
+  cancelReason: '',
+  rejectionReason: '',
+  orderDetailList: [],
+  packAmount: 0,
+  payMethod: 1,
+  checkoutTime: '',
+})
+
 @Component({
   name: 'Orderview',
   components: {
@@ -435,9 +482,9 @@ import {
   },
 })
 export default class extends Vue {
-  @Prop({ default: () => ({}) }) orderStatics!: { toBeConfirmed?: number; confirmed?: number }
+  @Prop({ default: () => ({}) }) orderStatics!: OrderListStatistics
 
-  private orderId = '' //订单号
+  private orderId: OrderId = '' //订单号
   private dialogOrderStatus = 0 //弹窗所需订单状态，用于详情展示字段
   private activeIndex = 0
 
@@ -446,17 +493,17 @@ export default class extends Vue {
   private cancelDialogTitle = '' //取消，拒绝弹窗标题
   private cancelReason = ''
   private remark = '' //自定义原因
-  private diaForm = []
-  private row = {}
+  private diaForm: OrderDetailDialog = createEmptyOrderDetail()
+  private row: OrderTableRow = createEmptyOrderRow()
   private isAutoNext = true
   private isSearch: boolean = false
   private counts = 0
   private page: number = 1
   private pageSize: number = 10
   private status = 2
-  private orderData = []
+  private orderData: OrderTableRow[] = []
   private isTableOperateBtn = true
-  private cancelOrderReasonList = [
+  private cancelOrderReasonList: OrderReasonOption[] = [
     {
       value: 1,
       label: '订单量较多，暂时无法履约接单',
@@ -475,7 +522,7 @@ export default class extends Vue {
     },
   ]
 
-  private cancelrReasonList = [
+  private cancelrReasonList: OrderReasonOption[] = [
     {
       value: 1,
       label: '订单量较多，暂时无法履约接单',
@@ -497,7 +544,7 @@ export default class extends Vue {
       label: '自定义原因',
     },
   ]
-  private orderList = [
+  private orderList: OrderStatusOption[] = [
     {
       label: '全部订单',
       value: 0,
@@ -541,6 +588,12 @@ export default class extends Vue {
       },
     ]
   }
+
+  get currentOrderStatusLabel(): string {
+    const currentStatus = this.orderList.find((item) => item.value === this.dialogOrderStatus)
+    return currentStatus ? currentStatus.label : ''
+  }
+
   created() {
     if (this.canViewOrderList) {
       this.getOrderListData(this.status)
@@ -553,6 +606,16 @@ export default class extends Vue {
   private hasPermission(permissionCode: string) {
     const permissions = UserModule.permissions || []
     return permissions.includes(permissionCode)
+  }
+
+  /**
+   * 统一提取异常信息，避免不同异常对象导致页面报错。
+   */
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message
+    }
+    return '系统繁忙，请稍后重试'
   }
 
   get canViewOrderList() {
@@ -583,7 +646,7 @@ export default class extends Vue {
     return this.hasPermission('order:review:complete')
   }
   // // 获取订单数据
-  async getOrderListData(status) {
+  async getOrderListData(status: number) {
     if (!this.canViewOrderList) {
       this.orderData = []
       this.counts = 0
@@ -594,26 +657,31 @@ export default class extends Vue {
       pageSize: this.pageSize,
       status: status,
     }
-    const data = await getOrderDetailPage(params)
-    this.orderData = data.data.data.records
-    this.counts = data.data.data.total
-    this.$emit('getOrderListBy3Status')
-    if (
-      this.dialogOrderStatus === 2 &&
-      this.status === 2 &&
-      this.isAutoNext &&
-      !this.isTableOperateBtn &&
-      data.data.records.length > 1
-    ) {
-      const row = data.data.records[0]
-      this.goDetail(row.id, row.status, row, row)
-    } else {
-      return null
+    try {
+      const response = await getOrderDetailPage(params)
+      const pageResult = (response.data.data || {}) as Partial<OrderPageResult>
+      this.orderData = pageResult.records || []
+      this.counts = pageResult.total || 0
+      this.$emit('getOrderListBy3Status')
+      if (
+        this.dialogOrderStatus === 2 &&
+        this.status === 2 &&
+        this.isAutoNext &&
+        !this.isTableOperateBtn &&
+        this.orderData.length > 0
+      ) {
+        const firstRow = this.orderData[0]
+        await this.goDetail(firstRow.id, firstRow.status, firstRow)
+      }
+    } catch (error) {
+      this.orderData = []
+      this.counts = 0
+      this.$message.error('请求出错了：' + this.getErrorMessage(error))
     }
   }
 
   //履约接单
-  orderAccept(row: any, event) {
+  orderAccept(row: OrderTableRow, event: MouseEvent) {
     if (!this.canConfirmOrder) {
       this.$message.warning('暂无履约接单权限')
       return
@@ -633,12 +701,12 @@ export default class extends Vue {
           this.$message.error(res.data.msg)
         }
       })
-      .catch((err) => {
-        this.$message.error('请求出错了：' + err.message)
+      .catch((error: unknown) => {
+        this.$message.error('请求出错了：' + this.getErrorMessage(error))
       })
   }
   //打开取消订单弹窗
-  cancelOrder(row: any, event) {
+  cancelOrder(row: OrderTableRow, event: MouseEvent) {
     if (!this.canCancelOrder) {
       this.$message.warning('暂无取消订单权限')
       return
@@ -652,7 +720,7 @@ export default class extends Vue {
     this.cancelReason = ''
   }
   //打开拒单弹窗
-  orderReject(row: any, event) {
+  orderReject(row: OrderTableRow, event: MouseEvent) {
     if (!this.canRejectOrder) {
       this.$message.warning('暂无拒单权限')
       return
@@ -666,19 +734,26 @@ export default class extends Vue {
     this.cancelReason = ''
   }
   //确认取消或拒绝订单并填写原因
-  confirmCancel(type) {
+  confirmCancel() {
     if (!this.cancelReason) {
       return this.$message.error(`请选择${this.cancelDialogTitle}原因`)
     } else if (this.cancelReason === '自定义原因' && !this.remark) {
       return this.$message.error(`请输入${this.cancelDialogTitle}原因`)
     }
 
-    (this.cancelDialogTitle === '取消' ? orderCancel : orderReject)({
-      id: this.orderId,
-      // eslint-disable-next-line standard/computed-property-even-spacing
-      [this.cancelDialogTitle === '取消' ? 'cancelReason' : 'rejectionReason']:
-        this.cancelReason === '自定义原因' ? this.remark : this.cancelReason,
-    })
+    const reason = this.cancelReason === '自定义原因' ? this.remark : this.cancelReason
+    const requestPromise =
+      this.cancelDialogTitle === '取消'
+        ? orderCancel({
+          id: this.orderId,
+          cancelReason: reason,
+        })
+        : orderReject({
+          id: this.orderId,
+          rejectionReason: reason,
+        })
+
+    requestPromise
       .then((res) => {
         if (res.data.code === 1) {
           this.$message.success('操作成功')
@@ -690,13 +765,13 @@ export default class extends Vue {
           this.$message.error(res.data.msg)
         }
       })
-      .catch((err) => {
-        this.$message.error('请求出错了：' + err.message)
+      .catch((error: unknown) => {
+        this.$message.error('请求出错了：' + this.getErrorMessage(error))
       })
   }
 
   // 履约配送，完成
-  cancelOrDeliveryOrComplete(status: number, id: string, event) {
+  cancelOrDeliveryOrComplete(status: number, id: OrderId, event: MouseEvent) {
     if (status === 3 && !this.canDeliveryOrder) {
       this.$message.warning('暂无履约配送权限')
       return
@@ -722,31 +797,40 @@ export default class extends Vue {
           this.$message.error(res.data.msg)
         }
       })
-      .catch((err) => {
-        this.$message.error('请求出错了：' + err.message)
+      .catch((error: unknown) => {
+        this.$message.error('请求出错了：' + this.getErrorMessage(error))
       })
   }
   // 查看详情
-  async goDetail(id: any, status: number, row: any, event) {
+  async goDetail(id: OrderId, status: number, row: OrderTableRow, event?: MouseEvent) {
     if (!this.canViewOrderDetail) {
       this.$message.warning('暂无查看订单详情权限')
       return
     }
-    event.stopPropagation()
-    // console.log(111, index, row)
-    this.diaForm = []
+    if (event) {
+      event.stopPropagation()
+    }
+    this.diaForm = createEmptyOrderDetail()
     this.dialogVisible = true
     this.dialogOrderStatus = status
-    const { data } = await queryOrderDetailById({ orderId: id })
-    this.diaForm = data.data
-    this.row = row
+    try {
+      const { data } = await queryOrderDetailById({ orderId: id })
+      this.diaForm = {
+        ...createEmptyOrderDetail(),
+        ...(data.data || {}),
+      }
+      this.row = row
+    } catch (error) {
+      this.dialogVisible = false
+      this.$message.error('请求出错了：' + this.getErrorMessage(error))
+    }
   }
   // 关闭弹层
   handleClose() {
     this.dialogVisible = false
   }
   // tab切换
-  handleClass(index) {
+  handleClass(index: number) {
     this.activeIndex = index
     if (index === 0) {
       this.status = 2
@@ -757,7 +841,7 @@ export default class extends Vue {
     }
   }
   // 触发table某一行
-  handleTable(row, column, event) {
+  handleTable(row: OrderTableRow, column: unknown, event: MouseEvent) {
     event.stopPropagation()
     this.goDetail(row.id, row.status, row, event)
   }

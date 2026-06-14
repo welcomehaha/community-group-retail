@@ -19,3 +19,4 @@ public class CommunityApplication {
         log.info("server started");
     }
 }
+

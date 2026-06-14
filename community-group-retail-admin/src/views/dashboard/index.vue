@@ -39,22 +39,17 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import {
-  getWorkspaceBusinessData, // 营业数据
-  getWorkspaceOrderOverview, // 订单管理今日订单
-  getWorkspaceProductOverview, // 商品总览
-  getWorkspaceBundleOverview, // 组合商品总览
+  getWorkspaceBusinessData,
+  getWorkspaceOrderOverview,
+  getWorkspaceProductOverview,
+  getWorkspaceBundleOverview,
   WorkspaceBusinessData,
   WorkspaceBundleOverview,
   WorkspaceOrderOverview,
   WorkspaceProductOverview
 } from '@/api/workspace'
-import { getOrderListBy } from '@/api/order'
+import { getOrderListBy, OrderListStatistics } from '@/api/order'
 import { UserModule } from '@/store/modules/user'
-
-interface DashboardOrderStatics {
-  toBeConfirmed?: number
-  confirmed?: number
-}
 // 组件
 // 营业数据
 import Overview from './components/overview.vue'
@@ -101,7 +96,7 @@ export default class extends Vue {
     sold: 0,
     discontinued: 0
   }
-  private orderStatics: DashboardOrderStatics = {}
+  private orderStatics: OrderListStatistics = {}
   created() {
     this.init()
   }
@@ -179,7 +174,7 @@ export default class extends Vue {
     if (!this.canViewOrderStatistics) {
       return
     }
-    getOrderListBy({})
+    getOrderListBy()
       .then((res) => {
         if (res.data.code === 1) {
           this.orderStatics = res.data.data
