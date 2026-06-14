@@ -177,7 +177,6 @@ export default class extends Vue {
   }
   // 添加商品
   private checkedListHandle(value: [string]) {
-    // TODO 实现倒序 由于value是组件内封装无法从前面添加 所有取巧处理倒序添加
     // 倒序展示 - 数据处理前反正 为正序
     this.checkedListAll.reverse()
     // value 是一个只包含商品名的数组，需要从 dishList 中筛选出对应详情

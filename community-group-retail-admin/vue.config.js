@@ -3,7 +3,7 @@ const name = 'Vue Typescript Admin'
 const IS_PROD = ['production', 'development'].includes(process.env.NODE_ENV)
 
 module.exports = {
-  'publicPath': process.env.NODE_ENV === 'production' ? './' : '/', // TODO: Remember to change this to fit your need
+  'publicPath': process.env.NODE_ENV === 'production' ? './' : '/',
   'lintOnSave': process.env.NODE_ENV === 'development',
   'pwa': {
     'name': name

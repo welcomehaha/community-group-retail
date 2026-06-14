@@ -139,14 +139,12 @@ export default {
     // 去地址页面
     goAddress() {
       this.setAddressBackUrl("/pages/my/my");
-      // TODO
       uni.redirectTo({
         url: "/pages/address/address?form=" + "my",
       });
     },
     // 去历史订单页面
     goOrder() {
-      // TODO
       uni.navigateTo({
         url: "/pages/historyOrder/historyOrder",
       });

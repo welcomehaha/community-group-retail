@@ -46,7 +46,7 @@ import { ReportOrderStatistics } from '@/api/report'
 })
 export default class extends Vue {
   @Prop() private orderdata!: ReportOrderStatistics
-  @Prop() private overviewData!: any
+  @Prop() private overviewData!: Record<string, unknown>
 
   @Watch('orderdata')
   getData() {
@@ -55,11 +55,12 @@ export default class extends Vue {
     })
   }
   initChart() {
-    type EChartsOption = echarts.EChartsOption
-    const chartDom = document.getElementById('ordermain') as any
+    const chartDom = document.getElementById('ordermain')
+    if (!chartDom) {
+      return
+    }
     const myChart = echarts.init(chartDom)
-    var option: any
-    option = {
+    const option: any = {
       // legend: {
       //   itemHeight: 3, //图例高
       //   itemWidth: 12, //图例宽
@@ -169,7 +170,7 @@ export default class extends Vue {
         }
       ],
     }
-    option && myChart.setOption(option)
+    myChart.setOption(option)
   }
 }
 </script>

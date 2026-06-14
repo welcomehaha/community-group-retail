@@ -169,12 +169,10 @@ export default {
     addOrEdit(type, item) {
       // 编辑与新增
       if (type === "新增") {
-        // TODO
         uni.redirectTo({
           url: "/pages/addOrEditAddress/addOrEditAddress",
         });
       } else {
-        // TODO
         uni.redirectTo({
           url:
             "/pages/addOrEditAddress/addOrEditAddress?type=" +
